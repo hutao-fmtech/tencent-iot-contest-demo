@@ -1,0 +1,23 @@
+{
+    "bridge": {
+        "name": "Homebridge",
+        "username": "B8:27:EB:18:B4:75",
+        "port": 51826,
+        "pin": "888-88-888"
+    },
+    "description": "Homebridge",
+    "accessories": [
+        {
+            "accessory": "HTTP-RGB",
+            "name": "LED",
+            "service": "Switch",
+            "http_method": "POST",
+            "switch": {
+                "status": "http://api.fmtech.me/v1/device/state/d896e0e0000219ed/1/state",
+                "powerOn": "http://api.fmtech.me/v1/device/state/d896e0e0000219ed/1/on",
+                "powerOff": "http://api.fmtech.me/v1/device/state/d896e0e0000219ed/1/off"
+            }
+        }
+    ],
+    "platforms": []
+}

@@ -1,0 +1,11 @@
+[Unit]
+Description=Homebridge
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+ExecStart=/usr/local/bin/homebridge
+
+[Install]
+WantedBy=multi-user.target
