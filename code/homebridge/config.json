@@ -9,13 +9,13 @@
     "accessories": [
         {
             "accessory": "HTTP-RGB",
-            "name": "LED",
+            "name": "灯1",
             "service": "Switch",
             "http_method": "POST",
             "switch": {
-                "status": "http://api.fmtech.me/v1/device/state/d896e0e0000219ed/1/state",
-                "powerOn": "http://api.fmtech.me/v1/device/state/d896e0e0000219ed/1/on",
-                "powerOff": "http://api.fmtech.me/v1/device/state/d896e0e0000219ed/1/off"
+                "status": "http://localhost:8006/light/api/v1.0/d896e0004500001b/1/",
+                "powerOn": "http://localhost:8006/light/api/v1.0/d896e0004500001b/1/on",
+                "powerOff": "http://localhost:8006/light/api/v1.0/d896e0004500001b/1/off"
             }
         }
     ],

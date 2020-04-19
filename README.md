@@ -44,14 +44,19 @@
 - 3. 安装 homebridge-better-http-rgb。参考[此链接](https://www.npmjs.com/package/homebridge-better-http-rgb)，注意命令前面添加 **`sudo`**。
 - 4. 配置（模拟）需要控制的设备。
 
->   ` cd ~/.homebridge`
->   ` vim config.json ` 添加下面内容
+>
+   ``` 
+    cd ~/.homebridge
+    vim config.json 
+    ```
+添加下面内容
 
 ```json
-    {
+
+{
     "bridge": {
         "name": "Homebridge",
-        "username": "B8:27:EB:18:B4:75",
+        "username": "DC:A6:32:64:5B:41",
         "port": 51826,
         "pin": "888-88-888"
     },
@@ -59,13 +64,13 @@
     "accessories": [
         {
             "accessory": "HTTP-RGB",
-            "name": "LED",
-            "service": "Switch",
-            "http_method": "POST",
+            "name": "灯1",
+            "service": "Light",
+	    "http_method": "POST",
             "switch": {
-                "status": "http://api.fmtech.me/v1/device/state/d896e0e0000219ed/1/state",
-                "powerOn": "http://api.fmtech.me/v1/device/state/d896e0e0000219ed/1/on",
-                "powerOff": "http://api.fmtech.me/v1/device/state/d896e0e0000219ed/1/off"
+                "status": "http://localhost:8006/light/api/v1.0/d896e0004500001b/1/",
+                "powerOn": "http://localhost:8006/light/api/v1.0/d896e0004500001b/1/on",
+                "powerOff": "http://localhost:8006/light/api/v1.0/d896e0004500001b/1/off"
             }
         }
     ],
@@ -75,8 +80,12 @@
 
 - 1. 开机启动 HomeBridge。
 
-> `cd /etc/systemd/system`
-> `vim homebridge@pi.service` ，添加下面内容。
+> 
+ ```
+   cd /etc/systemd/system
+   vim homebridge@pi.service
+ ```
+ 添加下面内容。
 
 ```
 [Unit]
@@ -92,28 +101,39 @@ ExecStart=/usr/local/bin/homebridge
 WantedBy=multi-user.target
 ```
 
-> ` #更新系统服务设置
-sudo systemctl --system daemon-reload `
+> 常用命令
+ 
+```
+#更新系统服务设置
+sudo systemctl --system daemon-reload 
 
-> ` #设置 HomeBridge 开机启动
-sudo systemctl enable homebridge@pi.service `
+#设置 HomeBridge 开机启动
+sudo systemctl enable homebridge@pi.service 
 
-> `#常用操作
+#常用操作
 sudo systemctl stop homebridge@pi.service
-sudo systemctl status homebridge@pi.service `
+sudo systemctl status homebridge@pi.service 
+journalctl -f -n 50  -u homebridge@pi.service 
+```
 
 ##### 第二步：构建逻辑控制 HTTP 服务
 - 1. 安装 Flask 。`pip3 install flask` 
 - 2. 安装 tencentcloud-sdk-python 。`pip3 install tencentcloud-sdk-python`
-- 3. 编写逻辑控制服务。` vim app.py`
+- 3. 编写逻辑控制服务。
+
+> 
+```sh 
+   cd ~/
+   mkdir tencent_iot_explorer
+   cd tencent_iot_explorer
+   vim app_tencent_iot_demo.py
+```
+添加下面内容。
 
 ```python
 import json
-from builtins import bytes
 
-from flask import Flask, jsonify, request
-
-import base64
+from flask import Flask
 
 from tencentcloud.common import credential
 from tencentcloud.common.profile.client_profile import ClientProfile
@@ -121,7 +141,7 @@ from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
 from tencentcloud.iotexplorer.v20190423 import iotexplorer_client, models
 
-cred = credential.Credential("改成自己的账号密钥")
+cred = credential.Credential("你的腾讯云账号ID", "你的腾讯云账号Key")
 httpProfile = HttpProfile()
 httpProfile.endpoint = "iotexplorer.tencentcloudapi.com"
 
@@ -129,13 +149,20 @@ clientProfile = ClientProfile()
 clientProfile.httpProfile = httpProfile
 
 app = Flask(__name__)
-led_state = 0
+light_state = 0
 
-def light_on(dev_uuid, key_num):
+
+def light_state_set(dev_uuid, key_num, state):
     try:
         client = iotexplorer_client.IotexplorerClient(cred, "ap-guangzhou", clientProfile)
         req = models.ControlDeviceDataRequest()
-        params = {'ProductId': '811YZ36SN5', 'DeviceName': dev_uuid, 'Data': "{\"led_state\":1}"}
+        params = {'ProductId': '你的产品ID', 'DeviceName': dev_uuid, 'Data': "{\"key1_state\":1}"}
+
+        if state == 1 and key_num == 1:
+            params['Data'] = "{\"led_switch\":1}"
+
+        if state == 0 and key_num == 1:
+            params['Data'] = "{\"led_switch\":0}"
 
         req.from_json_string(json.dumps(params))
 
@@ -145,40 +172,68 @@ def light_on(dev_uuid, key_num):
     except TencentCloudSDKException as err:
         print(err)
 
-
-def light_off(dev_uuid, key_num):
-    try:
-        client = iotexplorer_client.IotexplorerClient(cred, "ap-guangzhou", clientProfile)
-        req = models.ControlDeviceDataRequest()
-        params = {'ProductId': '811YZ36SN5', 'DeviceName': dev_uuid, 'Data': "{\"led_state\":0}"}
-
-        req.from_json_string(json.dumps(params))
-
-        resp = client.ControlDeviceData(req)
-        print(resp.to_json_string())
-
-    except TencentCloudSDKException as err:
-        print(err)
 
 @app.route('/')
 def hello_world():
     return 'Hello World!'
 
 
-@app.route('/light/api/v1.0/<string:dev_uuid>/<string:led_num>/<string:st>', methods=['GET', 'PUT', 'POST'])
-def light_set_status(dev_uuid, st):
-    global light_status
-    if st == 'on':
-        led_state = 1
-        light_on(dev_uuid, int(led_num))
-    elif st == 'off':
-        led_state = 0
-        light_off(dev_uuid, int(led_num))
+@app.route('/light/api/v1.0/<string:dev_uuid>/<string:led_num>/', methods=['GET'])
+def light_get_status(dev_uuid, led_num):
+    return str(light_state)
 
-    return str(led_state)
+
+@app.route('/light/api/v1.0/<string:dev_uuid>/<string:key_num>/<string:st>', methods=['POST'])
+def light_set_status(dev_uuid, key_num, st):
+    global light_state
+    if st == 'on':
+        light_state = 1
+        light_state_set(dev_uuid, int(key_num), 1)
+    elif st == 'off':
+        light_state = 0
+        light_state_set(dev_uuid, int(key_num), 0)
+
+    return str(light_state)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8006)
+```
+
+- 1. 开机启动 app_tencent_iot_demo.py。
+
+> `cd /etc/systemd/system`
+
+> `vim fmtech@pi.service` 
+> 添加下面内容。
+
+```
+[Unit]
+Description=fmtech-iot-demo
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+ExecStart=python3 /home/pi/tencent_iot_explorer/app_tencent_iot_demo.py
+
+[Install]
+WantedBy=multi-user.target
+```
+
+> 常用命令
+
+```
+#更新系统服务设置
+sudo systemctl --system daemon-reload
+
+#设置 fmtech 开机启动
+sudo systemctl enable fmtech@pi.service
+
+#常用操作
+sudo systemctl stop fmtech@pi.service
+sudo systemctl status fmtech@pi.service 
+journalctl -f -n 50  -u fmtech@pi.service
 ```
 
 ##### 第三步：IotExplore 添加产品及解析脚本

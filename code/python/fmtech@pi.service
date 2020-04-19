@@ -1,0 +1,11 @@
+[Unit]
+Description=fmtech-iot-demo
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+ExecStart=python3 /home/pi/tencent_iot_explorer/app_tencent_iot_demo.py
+
+[Install]
+WantedBy=multi-user.target
