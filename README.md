@@ -193,7 +193,7 @@ if __name__ == '__main__':
 
 - 5. 更新设备类型为 Class C。
 ![-w958](https://github.com/hutao-fmtech/tencent-iot-contest-demo/blob/master/img/修改ClssC.jpg)
-- 1. 确定应用层[通信协议]()，添加数据解析脚本。
+- 1. 确定应用层[通信协议](https://github.com/hutao-fmtech/tencent-iot-contest-demo/blob/master/code/iot-explorer/通信协议.md)，添加数据解析脚本。
     
 ```js
 //上行，设备上报数据
@@ -273,8 +273,8 @@ function ProtocolToRaw(obj) {
 - 7. 根据需要进行设备调试。
 
 ##### 第四步：终端节点开发
-- 搭建开发环境。请参考腾讯云Iot部门给出的[参考文档]()。
-- 根据[协议]()编码。建议使用Tencent-TinyOS，后期更换硬件平台更方便。
+- 搭建开发环境。请参考腾讯云Iot部门给出的[参考文档](https://github.com/hutao-fmtech/tencent-iot-contest-demo/blob/master/code/iot-explorer/基于TencentOS%20tiny的LoRaWAN开发入门指南.pdf)。
+- 根据[协议](https://github.com/hutao-fmtech/tencent-iot-contest-demo/blob/master/code/iot-explorer/通信协议.md)编码。建议使用Tencent-TinyOS，后期更换硬件平台更方便。
 
 ##### 第五步：集成测试
 - 硬件准备。
