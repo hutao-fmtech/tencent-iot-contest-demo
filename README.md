@@ -244,10 +244,10 @@ journalctl -f -n 50  -u fmtech@pi.service
 ![-w1229](https://github.com/hutao-fmtech/tencent-iot-contest-demo/blob/master/img/创建产品.jpg)
 - 4. 点击创建的产品，添加产品属性。
 ![-w991](https://github.com/hutao-fmtech/tencent-iot-contest-demo/blob/master/img/led_switch属性.jpg)
-![-w932](https://github.com/hutao-fmtech/tencent-iot-contest-demo/blob/master/img/heartbeart_periods属性.jpg)
+![-w932](https://github.com/hutao-fmtech/tencent-iot-contest-demo/blob/master/img/heartbeart_period属性.jpg)
 
 - 5. 更新设备类型为 Class C。
-![-w958](https://github.com/hutao-fmtech/tencent-iot-contest-demo/blob/master/img/修改ClssC.jpg)
+![-w958](https://github.com/hutao-fmtech/tencent-iot-contest-demo/blob/master/img/修改ClassC.jpg)
 - 1. 确定应用层[通信协议](https://github.com/hutao-fmtech/tencent-iot-contest-demo/blob/master/code/iot-explorer/通信协议.md)，添加数据解析脚本。
     
 ```js
